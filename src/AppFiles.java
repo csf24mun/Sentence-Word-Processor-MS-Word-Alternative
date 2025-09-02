@@ -7,7 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class AppFiles extends JFrame {
+public class AppFiles extends JFrame
+{
+    //Declare variables
+
     int i;
 
     JMenuBar titleBar;
@@ -29,8 +32,11 @@ public class AppFiles extends JFrame {
 
     AppFiles() throws IOException
     {
+        //Set App icon
         appIcon = new ImageIcon("sentenceIcon.png");
         this.setIconImage(appIcon.getImage());
+
+        //Set layout of JFrame and components
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Sentence");
@@ -55,6 +61,7 @@ public class AppFiles extends JFrame {
         title.setFont(new Font("Bahnschrift", Font.PLAIN, 65));
         title.setBounds(300, 10, 200, 80);
 
+        //Will open appMenu if pressed
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -78,14 +85,17 @@ public class AppFiles extends JFrame {
         String str;
         ArrayList<String> list = new ArrayList<String>();
 
-        //Gathers each fileName from txt file
+        //Gathers each fileName from txt file, and stores each in list ArrayList
         while ((str = br.readLine()) != null) {
             list.add(str);
         }
+        //Convert to normal array
         String[] stringArr = list.toArray(new String[0]);
 
-        //Displays each file in a dedicated panel
-        for (i = 0; i < stringArr.length; i++) {
+        //will display dedicated buttons if there are file names stored
+        for (i = 0; i < stringArr.length; i++)
+        {
+            //Set button layout
             JLabel lbl = new JLabel(stringArr[i]);
             lbl.setFont(new Font("Century Gothic", Font.PLAIN, 30));
             JButton opnBtn = new JButton("Open");
@@ -96,19 +106,19 @@ public class AppFiles extends JFrame {
 
             pnl.setLayout(new GridLayout(1, 3, 10, 10));
             pnl.add(lbl);
+            //Open and delete buttons
             openArray.add(opnBtn);
             deleteArray.add(delBtn);
 
-            //What? Always file 3 as i is set at 3 when the loop has ended
-            //Need to get file associated with the button
-            //Attach an int to each panel, this int will be used for string array
-            //int f = i;
 
             int f = i;
 
+            //Open button event
             openArray.get(i).addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e)
+                {
+                    //Open WordProcessor frame and set fileName to the name displayed on button
                     Main.openFile = 1;
                     Main.fileName = stringArr[f];
                     new WordProcessor();
@@ -116,17 +126,19 @@ public class AppFiles extends JFrame {
                 }
             });
 
+            //Delete button event
             deleteArray.get(i).addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
+                    //Display window asking if user is sure they want to delete the file
                     int result = JOptionPane.showConfirmDialog(null,
                             "Are you sure you want to delete " + stringArr[f],
                             "Delete file",
                             JOptionPane.YES_NO_OPTION);
 
-                    if (result == 0)
+                    if (result == 0) //File deletion is chosen
                     {
                         File file = new File("./data/files/" + stringArr[f]);
 
@@ -140,8 +152,6 @@ public class AppFiles extends JFrame {
 
                         File inputFile = new File("./data/fileList.txt");
                         File tempFile = new File("./data/fileListTemp.txt");
-                        //Main.openFile = 1;
-                        //Main.fileName = stringArr[f];
 
                         //Delete mention of file in fileList
                         try
@@ -150,11 +160,14 @@ public class AppFiles extends JFrame {
                             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
                             String currentLine;
                             int currentLineNumber = 0;
+
+                            //Scans files in file list
                             while ((currentLine = reader.readLine()) != null)
                             {
+                                //Accepts each file in file list which line no does not match the id of current file
                                 if (currentLineNumber != f)
                                 {
-                                    writer.write(currentLine);
+                                    writer.write(currentLine); //writes the file name to temp storage
                                     writer.newLine();
                                     System.out.println(currentLine);
                                 }
@@ -175,15 +188,15 @@ public class AppFiles extends JFrame {
                         //Main.openFile = 1;
                         //Main.fileName = stringArr[f];
 
-
+                        //Write names that have not been omitted (temp file names) back to fileList
                         try
                         {
                             BufferedReader reader = new BufferedReader(new FileReader(newInputFile));
                             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
                             String currentLine;
-                            while ((currentLine = reader.readLine()) != null)
+                            while ((currentLine = reader.readLine()) != null) //Scans files in temp list
                             {
-                                writer.write(currentLine);
+                                writer.write(currentLine); //writes names back to original file, therefore deleting mention of deleted file
                                 writer.newLine();
                                 System.out.println(currentLine);
                             }
@@ -196,6 +209,7 @@ public class AppFiles extends JFrame {
                             throw new RuntimeException(ex);
                         }
 
+                        //Once deletion process has finished, start AppFiles again for refresh
                         try {
                             new AppFiles();
                         } catch (IOException ex) {

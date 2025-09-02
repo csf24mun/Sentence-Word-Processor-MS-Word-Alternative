@@ -2,12 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class AppMenu extends JFrame implements ActionListener
 {
+    //Declare variables
+
     JMenuBar titleBar;
     JLabel title;
     JButton nFile;
@@ -21,8 +21,11 @@ public class AppMenu extends JFrame implements ActionListener
 
     AppMenu()
     {
+        //Set app icon
         appIcon = new ImageIcon("sentenceIcon.png");
         this.setIconImage(appIcon.getImage());
+
+        //Set layout of JFrame and components
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Sentence");
@@ -68,8 +71,10 @@ public class AppMenu extends JFrame implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
+        //New file button
         if (e.getSource() == nFile)
         {
+            //Will first display a window asking for a file name
             Main.fileName = (String)JOptionPane.showInputDialog(
                     this,
                     "What is the name of your new file:",
@@ -79,16 +84,29 @@ public class AppMenu extends JFrame implements ActionListener
                     null, null
             );
 
-//If you're here, the return value was null/empty.
-            //nFile.setLabel("Come on, finish the sentence!");
+            int sameName = 0;
+            try //Check the file if name has already been used
+            {
+                File inputFile = new File("./data/fileList.txt");
 
-            /*JOptionPane.showConfirmDialog(null, "What is the name of your new file?",
-                    "New file", JOptionPane.OK_CANCEL_OPTION);
-            System.out.println(ans);
+                BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                String currentLine;
+                //Read each line in fileList
+                while ((currentLine = reader.readLine()) != null)
+                {
+                    //If entered name is the same of a file name stored in the list
+                    if (Main.fileName.equals(currentLine))
+                    {
+                        sameName = 1;
+                    }
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
 
-             */
 
-            if (Main.fileName != null && Main.fileName.length() > 0)
+            //If file name is not blank
+            if (Main.fileName != null && Main.fileName.length() > 0 && sameName == 0)
             {
                 new WordProcessor();
                 dispose();
@@ -106,13 +124,19 @@ public class AppMenu extends JFrame implements ActionListener
                     ioe.printStackTrace();
                 }
             }
-            else if (Main.fileName == null || !(Main.fileName.length() > 0))
+            else if (Main.fileName == null || !(Main.fileName.length() > 0)) //if name has no string
             {
                 JOptionPane.showMessageDialog(null, "Not a valid name, try again",
                         "Invalid Name", JOptionPane.ERROR_MESSAGE, null);
             }
+            else if (sameName == 1) //If name has already been taken
+            {
+                JOptionPane.showMessageDialog(null, "File name has already been taken, try again",
+                        "Name Taken", JOptionPane.ERROR_MESSAGE, null);
+            }
         }
 
+        //Will open the files frame displaying all files
         if (e.getSource() == files)
         {
             try {
