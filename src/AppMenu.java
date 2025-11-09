@@ -1,3 +1,6 @@
+//By Noah Mullen
+//Ulster University
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,6 +15,7 @@ public class AppMenu extends JFrame implements ActionListener
     JLabel title;
     JButton nFile;
     JButton files;
+    JButton exit;
     JOptionPane createNew;
 
     //Put gridLayout with buttons in container then center container itself
@@ -27,9 +31,11 @@ public class AppMenu extends JFrame implements ActionListener
 
         //Set layout of JFrame and components
 
+        int w = Main.monW;
+        int h = Main.monH;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Sentence");
-        this.setSize(750, 900);
+        this.setSize(w/2, h);
         this.setLayout(new GridBagLayout());
         //GridBagConstraints gbc = new GridBagConstraints();
         cont.setLayout(new GridLayout(6, 1, 20, 30));
@@ -46,15 +52,20 @@ public class AppMenu extends JFrame implements ActionListener
         title = new JLabel("Sentence");
         nFile = new JButton("Create New");
         files = new JButton("Files");
+        exit = new JButton("Exit Application");
 
-        nFile.setPreferredSize(new Dimension(300, 80));
+        nFile.setPreferredSize(new Dimension(this.getWidth()- 60, 100));
         nFile.setFont(new Font("Century Gothic", Font.PLAIN, 30));
 
-        files.setPreferredSize(new Dimension(300, 80));
+        exit.setPreferredSize(new Dimension(this.getWidth()- 60, 100));
+        exit.setFont(new Font("Century Gothic", Font.PLAIN, 30));
+
+        files.setPreferredSize(new Dimension(this.getWidth()- 60, 100));
         files.setFont(new Font("Century Gothic", Font.PLAIN, 30));
 
         nFile.addActionListener(this);
         files.addActionListener(this);
+        exit.addActionListener(this);
 
         title.setFont(new Font("Bahnschrift", Font.PLAIN, 65));
         //title.setHorizontalAlignment(JLabel.CENTER);
@@ -63,6 +74,7 @@ public class AppMenu extends JFrame implements ActionListener
         this.setJMenuBar(titleBar);
         cont.add(nFile);
         cont.add(files);
+        cont.add(exit);
         this.add(cont);
 
         this.setVisible(true);
@@ -85,6 +97,7 @@ public class AppMenu extends JFrame implements ActionListener
             );
 
             int sameName = 0;
+            int rpt = 0;
             try //Check the file if name has already been used
             {
                 File inputFile = new File("./data/fileList.txt");
@@ -95,10 +108,21 @@ public class AppMenu extends JFrame implements ActionListener
                 while ((currentLine = reader.readLine()) != null)
                 {
                     //If entered name is the same of a file name stored in the list
-                    if (Main.fileName.equals(currentLine))
+                    try
                     {
-                        sameName = 1;
+                        if (Main.fileName.equals(currentLine))
+                        {
+                            sameName = 1;
+                        }
                     }
+                    catch (NullPointerException np)
+                    {
+                        JOptionPane.showMessageDialog(null, "Not a valid name, try again",
+                                "Invalid Name", JOptionPane.ERROR_MESSAGE, null);
+                        rpt = 1;
+                    }
+
+
                 }
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -124,7 +148,7 @@ public class AppMenu extends JFrame implements ActionListener
                     ioe.printStackTrace();
                 }
             }
-            else if (Main.fileName == null || !(Main.fileName.length() > 0)) //if name has no string
+            else if ((Main.fileName == null || !(Main.fileName.length() > 0)) && rpt != 1) //if name has no string
             {
                 JOptionPane.showMessageDialog(null, "Not a valid name, try again",
                         "Invalid Name", JOptionPane.ERROR_MESSAGE, null);
@@ -144,6 +168,18 @@ public class AppMenu extends JFrame implements ActionListener
                 dispose();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
+            }
+        }
+
+        if (e.getSource() == exit)
+        {
+            int result = JOptionPane.showConfirmDialog(null,
+                    "Are you sure you want to exit the application?",
+                    "Exit Application",
+                    JOptionPane.YES_NO_OPTION);
+            if (result == 0)
+            {
+                System.exit(0);
             }
         }
     }

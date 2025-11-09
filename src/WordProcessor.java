@@ -1,3 +1,6 @@
+//By Noah Mullen
+//Ulster University
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,8 +37,8 @@ public class WordProcessor extends JFrame implements ActionListener
 
     JMenu fileMenu;
     JMenuItem openItem;
+    //JMenuItem saveItem;
     JMenuItem saveItem;
-    JMenuItem saveAsItem;
     JMenuItem exitItem;
 
     JMenu imageMenu;
@@ -48,7 +51,7 @@ public class WordProcessor extends JFrame implements ActionListener
     String fileName;
 
     StyleContext sc = new StyleContext();
-    DefaultStyledDocument dse = new DefaultStyledDocument(sc);
+    DefaultStyledDocument dsd = new DefaultStyledDocument(sc);
 
 
     //Get available font families for word processor
@@ -75,10 +78,12 @@ public class WordProcessor extends JFrame implements ActionListener
     {
         fileName = Main.fileName; //Get file name from the file menu if opened
 
+        int w = Main.monW;
+        int h = Main.monH;
         //Set layout of JFrame
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Sentence: " + fileName);
-        this.setSize(750, 900);
+        this.setSize(w/2, h);
         this.setLayout(new FlowLayout());
         this.setLocationRelativeTo(null);
 
@@ -90,11 +95,18 @@ public class WordProcessor extends JFrame implements ActionListener
         textPane = new JTextPane();
         textPane.setFont(new Font("Arial", Font.PLAIN, 20));
         textPane.setMargin( new Insets(10,20,10,20));
-        textPane.setDocument(dse);
+        textPane.setDocument(dsd);
 
         //Set layout of JScrollPane
         scrollPane = new JScrollPane(textPane);
-        scrollPane.setPreferredSize(new Dimension(this.getWidth() - 50, this.getHeight() - 100)); //700x700 initially
+
+        //Needs to be same as A4 21 x 29.7 cm (1.414285x21 = 29.7)
+        //Maxes out at this.getHeight() - 170
+        //(this.getHeight() - 170) / 1.414285 = new width
+        double scrlWidthD = (this.getHeight() - 170) / 1.414285;
+        int scrlWidthI = (int) Math.round(scrlWidthD);
+
+        scrollPane.setPreferredSize(new Dimension(scrlWidthI, this.getHeight() - 170)); //700x700 initially.
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED); //as needed can be used
 
         //Font label
@@ -135,13 +147,13 @@ public class WordProcessor extends JFrame implements ActionListener
         fileMenu.setFont(new Font("Century Gothic", Font.PLAIN, 20));
         openItem = new JMenuItem("Open");
         openItem.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+        //saveItem = new JMenuItem("Save");
+        //saveItem.setFont(new Font("Century Gothic", Font.PLAIN, 20));
         saveItem = new JMenuItem("Save");
         saveItem.setFont(new Font("Century Gothic", Font.PLAIN, 20));
-        saveAsItem = new JMenuItem("Save as");
-        saveAsItem.setFont(new Font("Century Gothic", Font.PLAIN, 20));
         printItem = new JMenuItem("Print");
         printItem.setFont(new Font("Century Gothic", Font.PLAIN, 20));
-        exitItem = new JMenuItem("Exit");
+        exitItem = new JMenuItem("Menu");
         exitItem.setFont(new Font("Century Gothic", Font.PLAIN, 20));
         //Instantiate imageMenu and contents
         imageMenu = new JMenu("Image");
@@ -151,15 +163,15 @@ public class WordProcessor extends JFrame implements ActionListener
 
         //Add action listeners to each
         openItem.addActionListener(this);
+        //saveItem.addActionListener(this);
         saveItem.addActionListener(this);
-        saveAsItem.addActionListener(this);
         printItem.addActionListener(this);
         exitItem.addActionListener(this);
         importImage.addActionListener(this);
 
         //Add menuItems to fileMenu and imageMenu
         fileMenu.add(openItem);
-        fileMenu.add(saveAsItem);
+        fileMenu.add(saveItem);
         fileMenu.add(printItem);
         fileMenu.add(exitItem);
         imageMenu.add(importImage);
@@ -207,8 +219,8 @@ public class WordProcessor extends JFrame implements ActionListener
                     //Read the object
                     Object obj = oi.readObject();
                     //Reference file object as a DefaultStyledDocument and input to the textPane
-                    dse = ((DefaultStyledDocument)obj);
-                    textPane.setDocument(dse);
+                    dsd = ((DefaultStyledDocument)obj);
+                    textPane.setDocument(dsd);
                 }
             }
             catch (IOException ex)
@@ -236,7 +248,7 @@ public class WordProcessor extends JFrame implements ActionListener
                 ObjectOutputStream oo;
                 oo = new ObjectOutputStream(fo);
                 //Write the object in DefaultStyledDocument
-                oo.writeObject(dse);
+                oo.writeObject(dsd);
                 oo.close();
 
             } catch (IOException ioex)
@@ -365,8 +377,8 @@ public class WordProcessor extends JFrame implements ActionListener
                             //Read the object
                             Object obj = oi.readObject();
                             //Reference file object as a DefaultStyledDocument and input to the textPane
-                            dse = ((DefaultStyledDocument)obj);
-                            textPane.setDocument(dse);
+                            dsd = ((DefaultStyledDocument)obj);
+                            textPane.setDocument(dsd);
                         }
                     }
                     catch (FileNotFoundException ex)
@@ -388,7 +400,7 @@ public class WordProcessor extends JFrame implements ActionListener
 
 
 
-        if (e.getSource() == saveAsItem)
+        if (e.getSource() == saveItem)
         {
             //Get path of file
             File file;
@@ -402,7 +414,7 @@ public class WordProcessor extends JFrame implements ActionListener
                 ObjectOutputStream oo;
                 oo = new ObjectOutputStream(fo);
                 //Write the object in DefaultStyledDocument
-                oo.writeObject(dse);
+                oo.writeObject(dsd);
                 oo.close();
 
             } catch (IOException ioex)
@@ -418,7 +430,7 @@ public class WordProcessor extends JFrame implements ActionListener
             Dimension d = textPane.getSize();
             //Create new image
             BufferedImage printImg = new BufferedImage(
-                    1240, 1754, BufferedImage.TYPE_INT_RGB); //d.width, d.height
+                    scrollPane.getWidth() - 10, scrollPane.getHeight() - 10, BufferedImage.TYPE_INT_RGB); //d.width, d.height
             Graphics2D g2d = printImg.createGraphics();
             //Use textPane as image
             textPane.print(g2d);
@@ -446,7 +458,7 @@ public class WordProcessor extends JFrame implements ActionListener
             File workingDir = new File(".");
             fileChooser.setCurrentDirectory(workingDir);
             //Create and apply a FileNameExtensionFilter to allow only selected image files to be imported
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("Image files", "png", "jpg", "bmp");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Image files", "png", "jpg", "bmp", "jpeg");
             fileChooser.setFileFilter(filter);
 
             int result = fileChooser.showOpenDialog(getParent());
@@ -466,7 +478,7 @@ public class WordProcessor extends JFrame implements ActionListener
                     double constant = 0.8;
 
                     //Created to ensure the image does not extend width boundary of scrollPane
-                    while (imgWidth > 700)
+                    while (imgWidth > scrollPane.getWidth())
                     {
                         imgWidth = imgWidth * constant;
                         imgHeight = imgHeight * constant;
@@ -490,12 +502,19 @@ public class WordProcessor extends JFrame implements ActionListener
 
 
 
-        //Close the program
+        //Exit to menu
         if (e.getSource() == exitItem)
         {
-            new AppMenu();
-            dispose();
-            //System.exit(0);
+            int result = JOptionPane.showConfirmDialog(null,
+                    "Are you sure you want to exit to the menu?\nAll unsaved changes will be lost.",
+                    "Exit to Menu",
+                    JOptionPane.YES_NO_OPTION);
+            if (result == 0)
+            {
+                new AppMenu();
+                dispose();
+                //System.exit(0);
+            }
         }
     }
 
@@ -508,7 +527,7 @@ public class WordProcessor extends JFrame implements ActionListener
                 if (pageIndex != 0) {
                     return NO_SUCH_PAGE;
                 }
-                graphics.drawImage(img, 0, 0, 1240 ,1754, null); //img.getWidth(), img.getHeight()
+                graphics.drawImage(img, 0, 0, img.getWidth() ,img.getHeight(), null); //img.getWidth(), img.getHeight()
                 return PAGE_EXISTS;
             }
         });

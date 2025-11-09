@@ -1,3 +1,5 @@
+//By Noah Mullen
+//Ulster University
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -38,9 +40,11 @@ public class AppFiles extends JFrame
 
         //Set layout of JFrame and components
 
+        int w = Main.monW;
+        int h = Main.monH;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Sentence");
-        this.setSize(750, 900);
+        this.setSize(w/2, h);
         this.setLayout(null);
         this.setLocationRelativeTo(null);
 
@@ -59,7 +63,7 @@ public class AppFiles extends JFrame
         exit.setBounds(5, 23, 110, 30);
         title = new JLabel("Files");
         title.setFont(new Font("Bahnschrift", Font.PLAIN, 65));
-        title.setBounds(300, 10, 200, 80);
+        title.setBounds((this.getWidth()/2) - 90, 2, 200, 80);
 
         //Will open appMenu if pressed
         exit.addActionListener(new ActionListener() {
@@ -75,7 +79,8 @@ public class AppFiles extends JFrame
 
         scrollPane = new JScrollPane(cont);
 
-        scrollPane.setBounds(25, 90, this.getWidth() - 50, 770);
+        int scrlWidth = this.getWidth() - 50;
+        scrollPane.setBounds(25, 90, scrlWidth, this.getHeight() - 170);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); //as needed can be used
 
         //File file = new File("./data/fileList.txt");
@@ -217,11 +222,8 @@ public class AppFiles extends JFrame
                         }
                         dispose();
                     }
-
-
                 }
             });
-
 
             pnl.add(openArray.get(i));
             pnl.add(deleteArray.get(i));
@@ -229,7 +231,7 @@ public class AppFiles extends JFrame
             pnl.setBackground(Color.LIGHT_GRAY);
             //pnl.setPreferredSize(new Dimension(90, 50));
             int y = i * 120;
-            pnl.setBounds(0, y, 680, 100);
+            pnl.setBounds(0, y, scrlWidth, this.getHeight()/8);
             pnlArray.add(pnl);
             cont.add(pnlArray.get(i));
         }
